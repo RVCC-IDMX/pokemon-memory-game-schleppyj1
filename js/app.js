@@ -248,8 +248,15 @@ function assignPokemonToCard(card, pokemon) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Event | MDN: Event}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Element/classList | MDN: classList}
  */
+
+// Use let for variables that will change
+let firstSelectedCard = null;
+let secondSelectedCard = null;
+// Flag to prevent interaction during card processing
+let isProcessingPair = false;
+
 function handleCardClick(event) {
-  // Find the clicked card
+  /* // Find the clicked card
   let card = event.target;
   while (card && !card.classList.contains('card')) {
     card = card.parentElement;
@@ -261,6 +268,40 @@ function handleCardClick(event) {
 
   // Toggle card flip
   card.classList.toggle('flipped');
+  */
+
+  // Find the clicked card using closest for better performance and readability
+  const card = event.target.closest('.card');
+
+  // Early return pattern for better readability
+  if (!card) {
+    return; // Not a card or child of card
+  }
+
+
+  // Guard clauses for better readability
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) {
+    return; // Already flipped or matched
+  }
+
+  // Check if we're currently processing a pair (prevent clicking during timeout)
+  if (isProcessingPair) {
+    return;
+  }
+  isProcessingPair = true;
+
+  // Flip the card
+  card.classList.add('flipped');
+  if (card == firstSelectedCard || card == secondSelectedCard) {
+    return;
+  }
+
+  if (firstSelectedCard == null) {
+    firstSelectedCard = card;
+  } else {
+    secondSelectedCard = card;
+  }
+  isProcessingPair = false;
 }
 
 /**
