@@ -9,7 +9,7 @@ const cardGrid = document.getElementById('card-grid');
 const loadingSpinner = document.getElementById('loading-spinner');
 
 // Constants
-const CARD_COUNT = 12;
+const CARD_COUNT = 6;
 
 // Application State
 let cards = [];
@@ -110,22 +110,60 @@ function createCardElement(index) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | MDN: Promise}
  */
 async function fetchAndAssignPokemon() {
+  /* try {
+     // Fetch multiple random Pokemon
+     const pokemonList = await PokemonService.fetchMultipleRandomPokemon(CARD_COUNT);
+
+     // If debug flag is on, add artificial delay to show the spinner
+     if (DEBUG_SHOW_SPINNER) {
+       await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
+     }
+
+     // Assign Pokemon to cards
+     for (let i = 0; i < CARD_COUNT; i++) {
+       assignPokemonToCard(cards[i], pokemonList[i]);
+     }
+   } catch (error) {
+     console.error('Error fetching and assigning Pokemon:', error);
+   } */
+
   try {
-    // Fetch multiple random Pokemon
-    const pokemonList = await PokemonService.fetchMultipleRandomPokemon(CARD_COUNT);
+    // TODO: Fetch 6 Pokémon instead of 12
+    const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
 
-    // If debug flag is on, add artificial delay to show the spinner
-    if (DEBUG_SHOW_SPINNER) {
-      await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
-    }
+    // TODO: Create pairs by duplicating each Pokémon
+    // Use a more functional approach with map and spread operator
+    // const pokemonPairs = [];
+    // Your code here to create pairs (hint: consider using flatMap)
+    const pokemonPairs = pokemonList.flatMap((num) => ([num, num]));
 
-    // Assign Pokemon to cards
-    for (let i = 0; i < CARD_COUNT; i++) {
-      assignPokemonToCard(cards[i], pokemonList[i]);
+    // TODO: Shuffle the pairs
+    const shuffledPairs = shuffleArray(pokemonPairs);
+
+    // Assign Pokémon to cards - use a more robust approach with error checking
+    for (let i = 0; i < Math.min(CARD_COUNT, shuffledPairs.length); i++) {
+      if (cards[i] && shuffledPairs[i]) {
+        assignPokemonToCard(cards[i], shuffledPairs[i]);
+      }
     }
   } catch (error) {
     console.error('Error fetching and assigning Pokemon:', error);
+    // Consider adding user-friendly error handling here
+    showErrorMessage('Failed to load Pokémon. Please try refreshing the page.');
   }
+}
+
+// TODO: Implement a shuffle function
+function shuffleArray(array) {
+
+  // Create a deep copy of the array to avoid modifying the original
+  const arrayCopy = structuredClone(array);
+
+  // Implement shuffling on the copy (minimum requirement: use sort with random function)
+  // For extra credit: implement the Fisher-Yates shuffle algorithm
+  arrayCopy.sort(() => Math.random() - 0.5);
+
+  return arrayCopy;
 }
 
 /**
