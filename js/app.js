@@ -288,20 +288,96 @@ function handleCardClick(event) {
   if (isProcessingPair) {
     return;
   }
-  isProcessingPair = true;
 
   // Flip the card
   card.classList.add('flipped');
-  if (card == firstSelectedCard || card == secondSelectedCard) {
+  if (card === firstSelectedCard || card === secondSelectedCard) {
     return;
   }
 
-  if (firstSelectedCard == null) {
-    firstSelectedCard = card;
-  } else {
-    secondSelectedCard = card;
+  if (firstSelectedCard && secondSelectedCard) {
+    return;
   }
+
+  // Track selections
+  if (!firstSelectedCard) {
+    // First card selection
+    firstSelectedCard = card;
+  } else if (firstSelectedCard !== card) {
+    // Second card selection
+    secondSelectedCard = card;
+
+    // TODO: Check for a match
+    checkForMatch();
+  }
+}
+
+// TODO: Implement match checking
+function checkForMatch() {
+  // Get Pokémon data from both cards with error handling
+  let firstPokemonData, secondPokemonData;
+
+  try {
+    firstPokemonData = JSON.parse(firstSelectedCard.dataset.pokemon);
+    secondPokemonData = JSON.parse(secondSelectedCard.dataset.pokemon);
+  } catch (error) {
+    console.error('Error parsing Pokémon data:', error);
+    resetSelection();
+    return;
+  }
+
+  // Guard clause if either data is missing
+  if (!firstPokemonData || !secondPokemonData) {
+    console.error('Missing Pokémon data');
+    resetSelection();
+    return;
+  }
+
+  // TODO: Compare Pokémon and handle match/non-match cases
+  // Use a constant time comparison with strict equality
+  // Your code here to compare Pokémon IDs and handle the result
+  if (firstPokemonData.id === secondPokemonData.id) {
+    handleMatch();
+  } else {
+    handleNonMatch();
+  }
+}
+
+// TODO: Implement match handling
+function handleMatch() {
+  firstSelectedCard.classList.add('matched');
+  resetSelection();
+}
+
+// TODO: Implement non-match handling
+function handleNonMatch() {
+  // Set processing flag to prevent further interaction during timeout
+  isProcessingPair = true;
+
+  // Use a promise with setTimeout for better async handling
+  return new Promise(resolve => {
+    setTimeout(() => {
+      // Flip cards back over
+      firstSelectedCard.classList.remove('flipped');
+      secondSelectedCard.classList.remove('flipped');
+
+      // Reset selection after animation completes
+      resetSelection();
+
+      // Release the processing lock
+      isProcessingPair = false;
+
+      resolve();
+    }, 1000); // 1 second delay
+  });
+}
+
+// TODO: Implement selection reset
+function resetSelection() {
+  firstSelectedCard = null;
+  secondSelectedCard = null;
   isProcessingPair = false;
+
 }
 
 /**
