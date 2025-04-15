@@ -9,7 +9,7 @@ const cardGrid = document.getElementById('card-grid');
 const loadingSpinner = document.getElementById('loading-spinner');
 
 // Constants
-const CARD_COUNT = 6;
+const CARD_COUNT = 12;
 
 // Application State
 let cards = [];
@@ -110,34 +110,13 @@ function createCardElement(index) {
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise | MDN: Promise}
  */
 async function fetchAndAssignPokemon() {
-  /* try {
-     // Fetch multiple random Pokemon
-     const pokemonList = await PokemonService.fetchMultipleRandomPokemon(CARD_COUNT);
-
-     // If debug flag is on, add artificial delay to show the spinner
-     if (DEBUG_SHOW_SPINNER) {
-       await new Promise(resolve => setTimeout(resolve, LOADING_DELAY));
-     }
-
-     // Assign Pokemon to cards
-     for (let i = 0; i < CARD_COUNT; i++) {
-       assignPokemonToCard(cards[i], pokemonList[i]);
-     }
-   } catch (error) {
-     console.error('Error fetching and assigning Pokemon:', error);
-   } */
 
   try {
-    // TODO: Fetch 6 Pokémon instead of 12
     const pokemonList = await PokemonService.fetchMultipleRandomPokemon(6);
 
-    // TODO: Create pairs by duplicating each Pokémon
-    // Use a more functional approach with map and spread operator
-    // const pokemonPairs = [];
-    // Your code here to create pairs (hint: consider using flatMap)
+    // Used map and spread operator
     const pokemonPairs = pokemonList.flatMap((num) => ([num, num]));
 
-    // TODO: Shuffle the pairs
     const shuffledPairs = shuffleArray(pokemonPairs);
 
     // Assign Pokémon to cards - use a more robust approach with error checking
@@ -153,7 +132,6 @@ async function fetchAndAssignPokemon() {
   }
 }
 
-// TODO: Implement a shuffle function
 function shuffleArray(array) {
 
   // Create a deep copy of the array to avoid modifying the original
@@ -256,19 +234,6 @@ let secondSelectedCard = null;
 let isProcessingPair = false;
 
 function handleCardClick(event) {
-  /* // Find the clicked card
-  let card = event.target;
-  while (card && !card.classList.contains('card')) {
-    card = card.parentElement;
-  }
-
-  if (!card) {
-    return;
-  }
-
-  // Toggle card flip
-  card.classList.toggle('flipped');
-  */
 
   // Find the clicked card using closest for better performance and readability
   const card = event.target.closest('.card');
@@ -307,12 +272,10 @@ function handleCardClick(event) {
     // Second card selection
     secondSelectedCard = card;
 
-    // TODO: Check for a match
     checkForMatch();
   }
 }
 
-// TODO: Implement match checking
 function checkForMatch() {
   // Get Pokémon data from both cards with error handling
   let firstPokemonData, secondPokemonData;
@@ -333,9 +296,7 @@ function checkForMatch() {
     return;
   }
 
-  // TODO: Compare Pokémon and handle match/non-match cases
-  // Use a constant time comparison with strict equality
-  // Your code here to compare Pokémon IDs and handle the result
+  // Used a constant time comparison with strict equality
   if (firstPokemonData.id === secondPokemonData.id) {
     handleMatch();
   } else {
@@ -343,13 +304,17 @@ function checkForMatch() {
   }
 }
 
-// TODO: Implement match handling
+const matchedPairs = 0;
+const TOTAL_PAIRS = 6;
+
 function handleMatch() {
   firstSelectedCard.classList.add('matched');
+  secondSelectedCard.classList.add('matched');
   resetSelection();
+  checkGameCompletion();
+
 }
 
-// TODO: Implement non-match handling
 function handleNonMatch() {
   // Set processing flag to prevent further interaction during timeout
   isProcessingPair = true;
@@ -372,12 +337,47 @@ function handleNonMatch() {
   });
 }
 
-// TODO: Implement selection reset
 function resetSelection() {
   firstSelectedCard = null;
   secondSelectedCard = null;
   isProcessingPair = false;
 
+}
+
+function checkGameCompletion() {
+  // Used querySelectorAll to compare count vs total.
+  const cardsFlipped = document.querySelectorAll('.matched').length;
+
+  if (cardsFlipped === CARD_COUNT) {
+    showGameComplete();
+  }
+}
+
+function showGameComplete() {
+
+  // 1. Create a container for the message
+  const messageContainer = document.createElement('div');
+  messageContainer.classList.add('completion-message');
+
+  // 2. Add the message content
+  messageContainer.innerHTML = `
+    <h2>Congratulations!</h2>
+    <p>You found all the Pokémon pairs!</p>
+    <button id="play-again">Play Again</button>
+  `;
+
+  // 3. Add to the page
+  document.querySelector('.container').appendChild(messageContainer);
+
+  // 4. Set up the play again button
+  document.getElementById('play-again').addEventListener('click', () => {
+    messageContainer.remove();
+    resetGame();
+  });
+}
+
+function resetGame() {
+  initApp();
 }
 
 /**
